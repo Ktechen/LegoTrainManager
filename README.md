@@ -1,6 +1,6 @@
 # LegoTrainManager
 
-- Documentation LegoHub: https://github.com/corneliusmunz/legoino
+- Documentation and quick start LegoHub: https://github.com/corneliusmunz/legoino
 
 ## Basic:
 - [x] Connect train with esp32
