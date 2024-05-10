@@ -12,29 +12,29 @@
     <h1>Train Control Panel</h1>
 </div>
 <div>
-
     <button class="btn btn-primary" @onclick="OnGetWelcomeMessage">Get Welcome Message</button>
-    <p>@_welcomeMessage</p>
-
-    <button class="btn btn-warning" @onclick="OnGetCurrentTrainState">Get Current Train State</button>
-    <p>@_trainState</p>
-
-    <button class="btn btn-danger" @onclick="OnStopTrain">Stop Train</button>
-    <p>@_stopTrain</p>
+    <h3>@_welcomeMessage</h3>
+    <h3>@_trainState</h3>
+    <h3>@_stopTrain</h3>
 </div>
 <div>
-    <div class="d-flex flex-row mb-3">
-        <label>
-            Set Speed:
-            <input type="range" min="-100" max="100" @onchange="OnSetSpeed" @bind-value="_speed" @bind-value:event="oninput" class="slider" id="myRange">
-        </label>
+    <div style="border-style: dashed; padding:10px">
+        <button class="btn btn-primary" @onclick="() => OnSetSpeed(60)">Forward fast</button>
+        <button class="btn btn-warning" @onclick="() => OnSetSpeed(-60)">Backward fast</button>
+        <button class="btn btn-primary" @onclick="() => OnSetSpeed(18)">Forward slow</button>
+        <button class="btn btn-warning" @onclick="() => OnSetSpeed(-18)">Backward slow</button>
+        <button class="btn btn-danger" @onclick="OnStopTrain">Stop Train</button>
+        <button class="btn btn-primary" @onclick="OnGetCurrentTrainState">Train State</button>
     </div>
+    <label>
+        Set Speed:
+        <input type="range" min="-100" max="100" @onchange="OnSetSpeed" @bind-value="_speed" @bind-value:event="oninput" class="slider" id="myRange">
+    </label>
     <label>
         Set Speed:
         <input @bind-value="_speed" @bind-value:event="oninput" type="number" />
     </label>
     <button class="btn btn-success" @onclick="OnSetSpeed">Set Speed</button>
-
 </div>
 
 <div>
@@ -84,6 +84,12 @@
     {
         _logger.LogInformation("OnSetSpeed");
         await _esp32Service.SetSpeed(_speed);
+    }
+
+    private async Task OnSetSpeed(int speed)
+    {
+        _logger.LogInformation("OnSetSpeed");
+        await _esp32Service.SetSpeed(speed);
     }
 
     private async Task OnSetRGB()
