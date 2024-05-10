@@ -1,42 +1,57 @@
 ﻿@page "/train"
+
 @using LegoTrainManagerWeb.Services
+
 @inject IEsp32Service _esp32Service
 @inject ILogger<Train> _logger
 @rendermode InteractiveServer
 
 <PageTitle>Train Manager</PageTitle>
+<div>
+    <h3>Train</h3>
+    <h1>Train Control Panel</h1>
+</div>
+<div>
 
-<h3>Train</h3>
-<h1>Train Control Panel</h1>
+    <button class="btn btn-primary" @onclick="OnGetWelcomeMessage">Get Welcome Message</button>
+    <p>@_welcomeMessage</p>
 
-<button @onclick="OnGetWelcomeMessage">Get Welcome Message</button>
-<p>@_welcomeMessage</p>
+    <button class="btn btn-warning" @onclick="OnGetCurrentTrainState">Get Current Train State</button>
+    <p>@_trainState</p>
 
-<button @onclick="OnGetCurrentTrainState">Get Current Train State</button>
-<p>@_trainState</p>
+    <button class="btn btn-danger" @onclick="OnStopTrain">Stop Train</button>
+    <p>@_stopTrain</p>
+</div>
+<div>
+    <div class="d-flex flex-row mb-3">
+        <label>
+            Set Speed:
+            <input type="range" min="-100" max="100" @onchange="OnSetSpeed" @bind-value="_speed" @bind-value:event="oninput" class="slider" id="myRange">
+        </label>
+    </div>
+    <label>
+        Set Speed:
+        <input @bind-value="_speed" @bind-value:event="oninput" type="number" />
+    </label>
+    <button class="btn btn-success" @onclick="OnSetSpeed">Set Speed</button>
 
-<button @onclick="OnStopTrain">Stop Train</button>
-<p>@_stopTrain</p>
+</div>
 
-<label>
-    Set Speed:
-    <input @bind-value="_speed" @bind-value:event="oninput" type="number"/>
-</label>
-<button @onclick="OnSetSpeed">Set Speed</button>
-
-<label>
-    Set RGB:
-    <input @bind-value="R" @bind-value:event="oninput" type="number" max="255"/> R
-    <input @bind-value="G" @bind-value:event="oninput" type="number" max="255"/> G
-    <input @bind-value="B" @bind-value:event="oninput" type="number" max="255"/> B
-</label>
-<button @onclick="OnSetRGB">Set LED Color</button>
+<div>
+    <label>
+        Set RGB:
+        <input @bind-value="R" @bind-value:event="oninput" type="number" max="255" /> R
+        <input @bind-value="G" @bind-value:event="oninput" type="number" max="255" /> G
+        <input @bind-value="B" @bind-value:event="oninput" type="number" max="255" /> B
+    </label>
+    <button class="btn btn-primary" @onclick="OnSetRGB">Set LED Color</button>
+</div>
 
 @code {
     private string _welcomeMessage = string.Empty;
     private string _trainState = string.Empty;
     private string _stopTrain = string.Empty;
-    private int _speed = 20;
+    private int _speed = 0;
     private byte R;
     private byte G;
     private byte B = 255;
@@ -44,7 +59,6 @@
     protected override async Task OnInitializedAsync()
     {
         _logger.LogInformation("OnInitializedAsync");
-        _welcomeMessage = await _esp32Service.GetRoot();
         await base.OnInitializedAsync();
     }
 
