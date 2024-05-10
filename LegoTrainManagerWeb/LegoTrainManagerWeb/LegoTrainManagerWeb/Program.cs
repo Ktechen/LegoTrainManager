@@ -1,5 +1,6 @@
 using LegoTrainManagerWeb.Client.Pages;
 using LegoTrainManagerWeb.Components;
+using LegoTrainManagerWeb.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+builder.Services.AddHttpClient();
+
+builder.Services.AddScoped<IEsp32Service, Esp32Service>();
 
 var app = builder.Build();
 
