@@ -2,100 +2,184 @@
 
 @using LegoTrainManagerWeb.Services
 
-@inject IEsp32Service _esp32Service
-@inject ILogger<Train> _logger
+@inject IEsp32Service Esp32Service
 @rendermode InteractiveServer
 
 <PageTitle>Train Manager</PageTitle>
-<div>
-    <h3>Train</h3>
-    <h1>Train Control Panel</h1>
-</div>
-<div>
-    <button class="btn btn-primary" @onclick="OnGetWelcomeMessage">Get Welcome Message</button>
-    <h3>@_welcomeMessage</h3>
-    <h3>@_trainState</h3>
-    <h3>@_stopTrain</h3>
-</div>
-<div>
-    <div style="border-style: dashed; padding:10px">
-        <button class="btn btn-primary" @onclick="() => OnSetSpeed(60)">Forward fast</button>
-        <button class="btn btn-warning" @onclick="() => OnSetSpeed(-60)">Backward fast</button>
-        <button class="btn btn-primary" @onclick="() => OnSetSpeed(18)">Forward slow</button>
-        <button class="btn btn-warning" @onclick="() => OnSetSpeed(-18)">Backward slow</button>
-        <button class="btn btn-danger" @onclick="OnStopTrain">Stop Train</button>
-        <button class="btn btn-primary" @onclick="OnGetCurrentTrainState">Train State</button>
+@if (_isEsp32Alive)
+{
+    <div class="alert alert-success" role="alert">
+        Esp32 is ready to process
     </div>
-    <label>
-        Set Speed:
-        <input type="range" min="-100" max="100" @onchange="OnSetSpeed" @bind-value="_speed" @bind-value:event="oninput" class="slider" id="myRange">
-    </label>
-    <label>
-        Set Speed:
-        <input @bind-value="_speed" @bind-value:event="oninput" type="number" />
-    </label>
-    <button class="btn btn-success" @onclick="OnSetSpeed">Set Speed</button>
-</div>
+}
+else
+{
+    <div class="alert alert-danger" role="alert">
+        Esp32 is not connected
+    </div>
+}
 
 <div>
-    <label>
-        Set RGB:
-        <input @bind-value="R" @bind-value:event="oninput" type="number" max="255" /> R
-        <input @bind-value="G" @bind-value:event="oninput" type="number" max="255" /> G
-        <input @bind-value="B" @bind-value:event="oninput" type="number" max="255" /> B
-    </label>
-    <button class="btn btn-primary" @onclick="OnSetRGB">Set LED Color</button>
+    <div>
+        <h3>Train</h3>
+        <h1>Train Control Panel</h1>
+    </div>
+    <div>
+        <button class="btn btn-primary" @onclick="OnGetWelcomeMessage">Get Welcome Message</button>
+        <h3>@_welcomeMessage</h3>
+        <h3>@_trainState</h3>
+        <h3>@_trainSpeedMsg</h3>
+    </div>
+    <div>
+        <h3>Status: Esp32 - @_isEsp32Alive</h3>
+    </div>
+    <div>
+        <QuickGrid>
+            <PropertyColumn>
+                <button class="btn btn-primary button-responsive" @onclick="() => OnSetSpeed(100)">Forward max</button>
+                <button class="btn btn-warning button-responsive" @onclick="() => OnSetSpeed(-100)">Backward max</button>
+            </PropertyColumn>
+            <PropertyColumn>
+                <button class="btn btn-primary button-responsive" @onclick="() => OnSetSpeed(60)">Forward fast</button>
+                <button class="btn btn-warning button-responsive" @onclick="() => OnSetSpeed(-60)">Backward fast</button>
+            </PropertyColumn>
+            <PropertyColumn>
+                <button class="btn btn-primary button-responsive" @onclick="() => OnSetSpeed(18)">Forward slow</button>
+                <button class="btn btn-warning button-responsive" @onclick="() => OnSetSpeed(-18)">Backward slow</button>
+            </PropertyColumn>
+            <PropertyColumn>
+                <button class="btn btn-warning button-responsive" @onclick="SlowBrake">Slow brake</button>
+            </PropertyColumn>
+            <PropertyColumn>
+                <button class="btn btn-danger button-responsive" @onclick="OnStopTrain">Stop Train</button>
+                <button class="btn btn-primary button-responsive" @onclick="OnGetCurrentTrainState">Train State</button>
+            </PropertyColumn>
+        </QuickGrid>
+        <div style="padding:10px">
+            <div>
+                <label>
+                    Set Speed:
+                    <input type="range" min="-100" max="100" @onchange="OnSetSpeed" @bind-value="_speed" @bind-value:event="oninput" class="slider" id="myRange">
+                </label>
+            </div>
+            <div>
+                <label>
+                    Set Speed:
+                    <input @bind-value="_speed" onchange="@_speed" @bind-value:event="oninput" type="number" />
+                </label>
+                <button class="btn btn-success" @onclick="OnSetSpeed">Set Speed</button>
+            </div>
+        </div>
+    </div>
+    <div style="padding:10px">
+        <label>
+            Set RGB:
+            <div style="padding:10px">
+                <label>
+                    R:
+                    <input @bind-value="R" @bind-value:event="oninput" type="number" max="255" />
+                </label>
+            </div>
+            <div style="padding:10px">
+                <label>
+                    G:
+                    <input @bind-value="G" @bind-value:event="oninput" type="number" max="255" />
+                </label>
+            </div>
+            <div style="padding:10px">
+                <label>
+                    B:
+                    <input @bind-value="B" @bind-value:event="oninput" type="number" max="255" />
+                </label>
+            </div>
+        </label>
+        <div style="padding:10px">
+            <button class="btn btn-primary" @onclick="OnSetRGB">Set LED Color</button>
+        </div>
+    </div>
 </div>
 
 @code {
     private string _welcomeMessage = string.Empty;
     private string _trainState = string.Empty;
-    private string _stopTrain = string.Empty;
-    private int _speed = 0;
+    private string _trainSpeedMsg = string.Empty;
+
+    private int _speed;
     private byte R;
     private byte G;
     private byte B = 255;
 
+    private bool _isEsp32Alive;
+
+    private Timer _timer;
+
     protected override async Task OnInitializedAsync()
     {
-        _logger.LogInformation("OnInitializedAsync");
+        //_isEsp32Alive = await Esp32Service.IsAvailable();
+        //_timer = new Timer(OnEsp32Alive, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
         await base.OnInitializedAsync();
+    }
+
+    private void OnEsp32Alive(object? state)
+    {
+        _isEsp32Alive = Esp32Service.IsAvailable().GetAwaiter().GetResult();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task SlowBrake()
+    {
+        if (_speed == 0)
+        {
+            return;
+        }
+
+       await Task.Run(async () =>
+        {
+            for (var i = _speed - 1; i >= 0; i--)
+            {
+                await Esp32Service.SetSpeed(i);
+                _speed = i;
+                await Task.Delay(TimeSpan.FromSeconds(1)); 
+            }
+        });
     }
 
     private async Task OnGetWelcomeMessage()
     {
-        _logger.LogInformation("OnGetWelcomeMessage");
-        _welcomeMessage = await _esp32Service.GetRoot();
+        _welcomeMessage = await Esp32Service.GetRoot();
     }
 
     private async Task OnGetCurrentTrainState()
     {
-        _logger.LogInformation("OnGetCurrentTrainState");
-        _trainState = await _esp32Service.GetCurrentTrainState();
+        _trainState = await Esp32Service.GetCurrentTrainState();
     }
 
     private async Task OnStopTrain()
     {
-        _logger.LogInformation("OnStopTrain");
-        _stopTrain = await _esp32Service.StopTrain();
+        _trainSpeedMsg = await Esp32Service.StopTrain();
+        _speed = 0;
     }
 
     private async Task OnSetSpeed()
     {
-        _logger.LogInformation("OnSetSpeed");
-        await _esp32Service.SetSpeed(_speed);
+        _trainSpeedMsg = await Esp32Service.SetSpeed(_speed);
     }
 
     private async Task OnSetSpeed(int speed)
     {
-        _logger.LogInformation("OnSetSpeed");
-        await _esp32Service.SetSpeed(speed);
+        _trainSpeedMsg = await Esp32Service.SetSpeed(speed);
+        _speed = speed;
     }
 
     private async Task OnSetRGB()
     {
-        _logger.LogInformation("OnSetRGB");
-        await _esp32Service.SetRGB(R, G, B);
+        await Esp32Service.SetRGB(R, G, B);
     }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
+
 
 }
