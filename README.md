@@ -15,10 +15,14 @@
 - [ ] get battery status
 - [x] get information is esp32 connected/disconnected
 - [ ] get information is train connected/disconnected
-
+- [ ] 
 
 ## network
 - [ ] add esp32 to local dns
 
 ## Advance
+- [ ] optimize performance for esp32 request/response webserver
+- [ ] connect multi trains 
+- [ ] deploy on zimaboard/raspberry 
+- [ ] add train control to twitch api 
 - [ ] map Interface (2D or 3D):
