@@ -9,6 +9,7 @@
 - Select COM Port
 - Download ArduinoEsp32Setup/TrainHub.ino
 - Select .ino and change Network credentials
+- Start deploy
   
 ## Basic:
 - [x] Connect train with esp32
