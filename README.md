@@ -22,6 +22,7 @@
 - [ ] deploy on zimaboard/raspberry
       
 ## Advance
+- [ ] Add dashboard looks like real train interface
 - [ ] optimize performance for esp32 request/response webserver
 - [ ] connect multi trains 
 - [ ] add train control to twitch api 
