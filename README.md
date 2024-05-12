@@ -15,7 +15,6 @@
 - [ ] get battery status
 - [x] get information is esp32 connected/disconnected
 - [ ] get information is train connected/disconnected
-- [ ] 
 
 ## network
 - [ ] add esp32 to local dns
