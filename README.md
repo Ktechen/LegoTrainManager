@@ -19,10 +19,11 @@
 
 ## network
 - [ ] add esp32 to local dns
-
+- [ ] move esp32 to powerbank or battery (need to be calulate)
+- [ ] deploy on zimaboard/raspberry
+      
 ## Advance
 - [ ] optimize performance for esp32 request/response webserver
 - [ ] connect multi trains 
-- [ ] deploy on zimaboard/raspberry 
 - [ ] add train control to twitch api 
 - [ ] map Interface (2D or 3D):
