@@ -2,6 +2,14 @@
 
 - Documentation and quick start LegoHub: https://github.com/corneliusmunz/legoino
 
+## How to start
+
+- install [Arduino IDE](https://www.arduino.cc/en/software)
+- Connect esp32
+- Select COM Port
+- Download ArduinoEsp32Setup/TrainHub.ino
+- Select .ino and change Network credentials
+  
 ## Basic:
 - [x] Connect train with esp32
 - [x] start web server on esp32 to call via http
