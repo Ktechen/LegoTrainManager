@@ -94,7 +94,7 @@ namespace LegoTrainManagerWeb.Services
                 var url = $"speed?speed={speed}";
                 using var content = new StringContent("", Encoding.UTF8, "text/plain");
                 var httpContent = await _httpClient.PostAsync(url, content);
-                _logger.LogInformation($"request msg: {request}");
+                _logger.LogInformation($"request msg: {speed}");
                 request = httpContent.IsSuccessStatusCode ? $"Speed Update {speed}" : "Speed Error";
                 return request;
             }

@@ -77,19 +77,19 @@ else
             <div style="padding:10px">
                 <label>
                     R:
-                    <input @bind-value="R" @bind-value:event="oninput" type="number" max="255" />
+                    <input @bind-value="_red" @bind-value:event="oninput" type="number" max="255" />
                 </label>
             </div>
             <div style="padding:10px">
                 <label>
                     G:
-                    <input @bind-value="G" @bind-value:event="oninput" type="number" max="255" />
+                    <input @bind-value="_green" @bind-value:event="oninput" type="number" max="255" />
                 </label>
             </div>
             <div style="padding:10px">
                 <label>
                     B:
-                    <input @bind-value="B" @bind-value:event="oninput" type="number" max="255" />
+                    <input @bind-value="_blue" @bind-value:event="oninput" type="number" max="255" />
                 </label>
             </div>
         </label>
@@ -105,9 +105,9 @@ else
     private string _trainSpeedMsg = string.Empty;
 
     private int _speed;
-    private byte R;
-    private byte G;
-    private byte B = 255;
+    private byte _red;
+    private byte _green;
+    private byte _blue = 255;
 
     private bool _isEsp32Alive;
 
@@ -133,15 +133,28 @@ else
             return;
         }
 
-       await Task.Run(async () =>
+        await Task.Run(async () =>
         {
-            for (var i = _speed - 1; i >= 0; i--)
+            if (_speed > 0)
             {
-                await Esp32Service.SetSpeed(i);
-                _speed = i;
-                await Task.Delay(TimeSpan.FromSeconds(1)); 
+                for (var i = _speed - 1; i >= 0; i--)
+                {
+                    await OnSetSpeed(i);
+                    await InvokeAsync(StateHasChanged);
+                    await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
+                }
             }
-        });
+            else
+            {
+                for (var i = _speed; i <= 0; i++)
+                {
+                    await OnSetSpeed(i);
+                    await InvokeAsync(StateHasChanged);
+                    await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
+                }
+            }
+
+        }).ConfigureAwait(false);
     }
 
     private async Task OnGetWelcomeMessage()
@@ -173,7 +186,7 @@ else
 
     private async Task OnSetRGB()
     {
-        await Esp32Service.SetRGB(R, G, B);
+        await Esp32Service.SetRGB(_red, _green, _blue);
     }
 
     public void Dispose()
